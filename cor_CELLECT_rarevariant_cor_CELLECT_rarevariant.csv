@@ -1,0 +1,11 @@
+geneset_name,gwas,pearson_cor,minLog10_vals
+rare_variant_mendelian,BMI_UKBB_Loh2018,0.582698214155735,TRUE
+rare_variant_mendelian,EA3_Lee2018,0.240892876145023,TRUE
+rare_variant_mendelian,INTELLIGENCE_Savage2018,0.316866889523338,TRUE
+rare_variant_mendelian,SCZ_Pardinas2018,0.142452984800265,TRUE
+rare_variant_mendelian,INSOMNIA_Jansen2018,0.421295543550568,TRUE
+rare_variant_mendelian,MS_Patsopoulos2011,0.0716634856661282,TRUE
+rare_variant_mendelian,RA_Okada2014,0.15642445047717,TRUE
+rare_variant_mendelian,LIPIDS_LDL_Teslovich2010,-0.0674387265844842,TRUE
+rare_variant_mendelian,WHRadjBMI_UKBB_Loh2018,-0.286747255097642,TRUE
+rare_variant_mendelian,HEIGHT_UKBB_Loh2018,-0.268315823310028,TRUE
