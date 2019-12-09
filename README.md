@@ -11,7 +11,7 @@ Scripts to identify similar celltypes by transferring labels using Seurat 3, and
     3. Rare/mendelian variant Mouse Nervous System celltypes with CELLECT prioritized hypothalamus celltypes: edit paths in `run_seurat_compare_MNS_rarevariant_hypo_CELLECT.sh` and call `run_seurat_compare_MNS_rarevariant_hypo_CELLECT.sh`
 4. Analyse the correlations between rare/mendelian BMI variants and CELLECT scores for 10 GWAS phenotypes: Update the paths in `run_correlate_celltypes.sh` and call `bash run_correlate_celltypes.sh`
 
-## Session infoi
+## Session info
 
 pander(sessionInfo())
 
