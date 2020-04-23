@@ -37,6 +37,8 @@ option_list <- list(
               help = "correlation coefficient, passed to stats::cor, one of pearson, kendall, spearman, [default $default]"), 
   make_option("--minLog10transform", type="logical", default= T,
               help = "transform values by -log10 before correlating? [default $default]"), 
+  make_option("--alternative", type="character", default= "greater",
+              help = "alternative hypothesis for p.value [default $default]"), 
   make_option("--output_label", type="character",
               help = "character, label for output files"),
   make_option("--append_results", type="logical", default=TRUE,
@@ -56,6 +58,7 @@ col_CELLECT <- opt$col_CELLECT
 vec_GWAS <- eval(parse(text=opt$vec_GWAS))
 method <- opt$method
 minLog10transform <- opt$minLog10transform
+alternative = opt$alternative
 output_label <- opt$output_label
 append_results <- opt$append_results
 
@@ -69,7 +72,7 @@ message("Loading packages")
 suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("data.table"))
 suppressPackageStartupMessages(library("here"))
-
+suppressPackageStartupMessages(library("broom"))
 ######################################################################
 ########################### SET OPTIONS ##############################
 ######################################################################
@@ -111,12 +114,13 @@ dt_geneset_results <- fread(path_geneset_results)
 ########################## FILTER AND REORDER  #######################
 ######################################################################
 
-mat_cor <- sapply(vec_GWAS, function(GWAS) {
-  sapply(vec_geneset_name, function(geneset_name){
+list_dt_cor.test <- lapply(vec_GWAS, function(GWAS) {
+  
+  dt_cor.test = data.table(t(sapply(vec_geneset_name, function(geneset_name){
     
     # cell_type,statistic,parameter,p.value,p.value_emp,alternative
     vec_geneset_value <- dt_geneset_results[[col_geneset_results]]
-    names(vec_geneset_value) <- dt_geneset_results$cell_type
+    names(vec_geneset_value) <- dt_geneset_results[["annotation"]]
     
     if (!is.null(dt_geneset_results$geneset_name)) vec_geneset_value <- 
       vec_geneset_value[dt_geneset_results$geneset_name == geneset_name]
@@ -139,31 +143,48 @@ mat_cor <- sapply(vec_GWAS, function(GWAS) {
     }
     
     # compute correlation
-    cor(x=vec_geneset_value,
-        y=vec_CELLECT_value,
-        method=method)
-  })
+    # cor(x=vec_geneset_value,
+    #     y=vec_CELLECT_value,
+    #     method=method)
+    # 
+    tbbl_out <-broom::tidy(cor.test(x=vec_geneset_value,
+            y=vec_CELLECT_value,
+            method=method,
+            alternative=alternative))
+    vec_out<-as.character(tbbl_out)
+    names(vec_out)<-colnames(tbbl_out)    
+    vec_out
+    
+  })))
+  dt_cor.test = data.table("gwas"=GWAS,"geneset_name"=vec_geneset_name,dt_cor.test)
+
 })
 
-mat_cor <- matrix(data=mat_cor, nrow=length(vec_geneset_name), ncol = length(vec_GWAS))
-colnames(mat_cor) <- vec_GWAS
+print(list_dt_cor.test)
+#print(list_cor)
+# mat_cor <- matrix(data=mat_cor, nrow=length(vec_geneset_name), ncol = length(vec_GWAS))
+# colnames(mat_cor) <- vec_GWAS
+# 
+# dt_cor <- data.table(
+#   geneset_name = vec_geneset_name,
+#   mat_cor 
+# )
+# 
+# dt_cor_long <- melt.data.table(dt_cor, 
+#                     id.vars= "geneset_name",
+#                     variable.name = "gwas",
+#                     value.name = paste0(method, "_cor"))
 
-dt_cor <- data.table(
-  geneset_name = vec_geneset_name,
-  mat_cor 
-)
-
-dt_cor_long <- melt.data.table(dt_cor, 
-                    id.vars= "geneset_name",
-                    variable.name = "gwas",
-                    value.name = paste0(method, "_cor"))
+dt_cor_long = Reduce(f = rbind, x=list_dt_cor.test)
 
 dt_cor_long$minLog10_vals <- minLog10transform
+
 ######################################################################
 #############################  WRAP UP  ##############################
 ######################################################################
 
-file.out.results <- here(paste0(output_label, "_cor_CELLECT_rarevariant.csv"))
+
+file.out.results <- here(paste0(id_datExpr,"_",output_label,"_",flag_date,".csv"))
 fwrite(x = dt_cor_long, file =file.out.results,  append = if (file.exists(file.out.results)) append_results else F, nThread=24, verbose=T)
 
 message("script done!")

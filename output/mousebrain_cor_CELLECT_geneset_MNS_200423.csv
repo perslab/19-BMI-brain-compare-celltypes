@@ -1,0 +1,3 @@
+gwas,geneset_name,estimate,statistic,p.value,parameter,conf.low,conf.high,method,alternative,minLog10_vals
+BMI_UKBB_Loh2018,protein_monogenic_extreme,c(cor = 0.537620800911222),c(t = 10.3402293298413),1.49297174997146e-21,c(df = 263),0.461474954278754,1,Pearson's product-moment correlation,greater,TRUE
+BMI_UKBB_Loh2018,syndromic,c(cor = 0.321767872177321),c(t = 5.51129652297123),4.24568157861176e-08,c(df = 263),0.227923903399369,1,Pearson's product-moment correlation,greater,TRUE
